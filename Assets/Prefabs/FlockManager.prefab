@@ -142,10 +142,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boidPrefab: {fileID: 11475324, guid: f33898528f62bda4092f4065ba31d2c1, type: 2}
-  numberOfBoids: 1000
+  numberOfBoids: 100
   alignmentWeight: 0.5
   cohesionWeight: 0.9
   separationWeight: 0.1
+  targetWeight: 0
+  target_object: {fileID: 0}
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1

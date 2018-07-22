@@ -52,7 +52,11 @@ public class FlockManager : MonoBehaviour
                     boid.showSeparationDebug(separation);
                 }
 
-                boid.thisRigidbody.velocity += (alignment + cohesion + separation + target);
+                if (Vector3.Distance(boid.transform.position, target_object.transform.position) < 10.0f)
+                    target = Vector3.zero;
+
+                boid.thisRigidbody.velocity += (alignment + cohesion + separation + target) * 0.4f;
+
                 //boid.thisRigidbody.AddForce(align(boid) * alignmentWeight);
                 //boid.thisRigidbody.AddForce(cohere(boid) * cohesionWeight);
                 //boid.thisRigidbody.AddForce(separate(boid) * separationWeight);
