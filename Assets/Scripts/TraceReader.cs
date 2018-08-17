@@ -2,20 +2,31 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using UnityEngine.UI;
 
 public class TraceReader : MonoBehaviour
 {
     public GameObject bird;
-    private List<string[]> traceData = new List<string[]>();
     private List<float[]> tracePosition = new List<float[]>();
+    private List<float[]> tracePosition2 = new List<float[]>();
+    private List<GameObject> birds = new List<GameObject>();
+    private int FRAME_MAX = 67;
 
     // Use this for initialization
     void Start()
     {
-        tracePosition = loadTraceFromCSV("track");
+        loadTraceFromCSV("trace1", ref tracePosition);
         if (tracePosition != null)
         {
-            SpawnBirds(tracePosition);
+            //SpawnBirds(tracePosition);
+            SpawnBird(tracePosition);
+        }
+
+        loadTraceFromCSV("trace2", ref tracePosition2);
+        if (tracePosition2 != null)
+        {
+            //SpawnBirds(tracePosition);
+            SpawnBird(tracePosition2);
         }
     }
 
@@ -24,8 +35,10 @@ public class TraceReader : MonoBehaviour
     {
         if (Input.GetButtonDown("Fire1"))
         {
-            SpawnBirdOnMouse();
+            //SpawnBirdOnMouse();
         }
+        UpdateBird(0, tracePosition);
+        UpdateBird(1, tracePosition2);
     }
 
     public void SpawnBirds(List<float[]> tracePositionList)
@@ -41,6 +54,35 @@ public class TraceReader : MonoBehaviour
         }
     }
 
+    public void SpawnBird(List<float[]> tracePositionList)
+    {
+        float[] data = tracePositionList[0];
+        float posX = (float)(1280 * data[1]);
+        float posY = (float)(458 * (1.0 - data[2]));
+        Vector3 pos = new Vector3(posX, posY, 10.0f);
+        Vector3 v3 = Camera.main.ScreenToWorldPoint(pos);
+        GameObject boid = Instantiate(bird);
+        boid.name = "Bird" + birds.Count;
+        boid.transform.position = v3;
+        birds.Add(boid);
+        Debug.Log("Boid " + birds.Count + " spawned X=" + posX + " Y=" + posY);
+    }
+
+    public void UpdateBird(int no, List<float[]> tracePositionList)
+    {
+        GameObject boid = birds[no];
+        GameObject slider_object = GameObject.Find("Slider");
+        Slider slider = slider_object.GetComponent<Slider>();
+        int frame = (int)(slider.value * FRAME_MAX);
+
+        float[] data = tracePositionList[frame];
+        float posX = (float)(1280 * data[1]);
+        float posY = (float)(458 * (1.0 - data[2]));
+        Vector3 pos = new Vector3(posX, posY, 10.0f);
+        Vector3 v3 = Camera.main.ScreenToWorldPoint(pos);
+        boid.transform.position = v3;
+    }
+
     public void SpawnBirdOnMouse()
     {
         Vector3 pos = (Input.mousePosition);
@@ -52,27 +94,33 @@ public class TraceReader : MonoBehaviour
         Debug.Log("SpawnBirdOnMouse : X=" + pos.x + " Y=" + pos.y);
     }
 
-    public List<float[]> loadTraceFromCSV(string fileName)
+    public bool loadTraceFromCSV(string fileName, ref List<float[]> loadedTracePosition)
     {
-        List<float[]> loadedTracePosition = new List<float[]>();
+        Debug.Log("Start loading trace data " + fileName);
 
         // load csv file as TextAsset
         var csvFile = Resources.Load(fileName) as TextAsset;
         if (csvFile == null)
         {
-            Debug.Log("track.csv not found!");
-            return null;
+            Debug.Log("track file" + fileName + " not found!");
+            return false;
         }
 
         // tranform csv file into StringReader
         var reader = new StringReader(csvFile.text);
+
+        List<string[]> traceData = new List<string[]>();
 
         while (reader.Peek() > -1)
         {
             var lineData = reader.ReadLine();
             string[] data = lineData.Split(',');
             traceData.Add(data);
+            Debug.Log(data[0]);
         }
+
+        reader.Close();
+        reader = null;
 
         int phase = 0;
         float count = 0;
@@ -109,6 +157,6 @@ public class TraceReader : MonoBehaviour
                 count++;
             }
         }
-        return loadedTracePosition;
+        return true;
     }
 }
