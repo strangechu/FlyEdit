@@ -7,26 +7,23 @@ using UnityEngine.UI;
 public class TraceReader : MonoBehaviour
 {
     public GameObject bird;
-    private List<float[]> tracePosition = new List<float[]>();
-    private List<float[]> tracePosition2 = new List<float[]>();
+    private List<List<float[]>> tracePositions = new List<List<float[]>>();
+    private List<List<Vector3[]>> currentPositions = new List<List<Vector3[]>>();
     private List<GameObject> birds = new List<GameObject>();
     private int FRAME_MAX = 67;
+    private int TRACE_MAX = 2;
 
     // Use this for initialization
     void Start()
     {
-        loadTraceFromCSV("trace1", ref tracePosition);
-        if (tracePosition != null)
+        for (int i = 0; i < TRACE_MAX; i++)
         {
-            //SpawnBirds(tracePosition);
-            SpawnBird(tracePosition);
-        }
-
-        loadTraceFromCSV("trace2", ref tracePosition2);
-        if (tracePosition2 != null)
-        {
-            //SpawnBirds(tracePosition);
-            SpawnBird(tracePosition2);
+            tracePositions.Insert(i, new List<float[]>());
+            List<float[]> position = tracePositions[i];
+            if (loadTraceFromCSV("trace" + (i+1).ToString(), ref position))
+            {
+                SpawnBird(position);
+            }
         }
     }
 
@@ -37,35 +34,41 @@ public class TraceReader : MonoBehaviour
         {
             //SpawnBirdOnMouse();
         }
-        UpdateBird(0, tracePosition);
-        UpdateBird(1, tracePosition2);
+
+        for (int i = 0; i < TRACE_MAX; i++)
+        {
+            UpdateBird(i, tracePositions[i]);
+        }
+    }
+
+    public Vector3 ScreenToWorld (float x, float y)
+    {
+        float posX = (float)(1280 * x);
+        float posY = (float)(458 * (1.0 - y));
+        Vector3 pos = Camera.main.ScreenToWorldPoint(new Vector3(posX, posY, 10.0f));
+        return pos;
     }
 
     public void SpawnBirds(List<float[]> tracePositionList)
     {
+        int count = 0;
         foreach (float[] data in tracePositionList)
         {
-            float posX = (float)(1280 * data[1]);
-            float posY = (float)(458 * (1.0 - data[2]));
-            Vector3 pos = new Vector3(posX, posY, 10.0f);
-            Vector3 v3 = Camera.main.ScreenToWorldPoint(pos);
             GameObject boid = Instantiate(bird);
-            boid.transform.position = v3;
+            boid.transform.position = ScreenToWorld(data[1], data[2]);
+            boid.name = count.ToString();
+            count++;
         }
     }
 
     public void SpawnBird(List<float[]> tracePositionList)
     {
         float[] data = tracePositionList[0];
-        float posX = (float)(1280 * data[1]);
-        float posY = (float)(458 * (1.0 - data[2]));
-        Vector3 pos = new Vector3(posX, posY, 10.0f);
-        Vector3 v3 = Camera.main.ScreenToWorldPoint(pos);
         GameObject boid = Instantiate(bird);
         boid.name = "Bird" + birds.Count;
-        boid.transform.position = v3;
+        boid.transform.position = ScreenToWorld(data[1], data[2]);
         birds.Add(boid);
-        Debug.Log("Boid " + birds.Count + " spawned X=" + posX + " Y=" + posY);
+        Debug.Log("Boid " + birds.Count + " spawned X=" + boid.transform.position.x + " Y=" + boid.transform.position.y);
     }
 
     public void UpdateBird(int no, List<float[]> tracePositionList)
@@ -116,7 +119,7 @@ public class TraceReader : MonoBehaviour
             var lineData = reader.ReadLine();
             string[] data = lineData.Split(',');
             traceData.Add(data);
-            Debug.Log(data[0]);
+            //Debug.Log(data[0]);
         }
 
         reader.Close();
