@@ -6,12 +6,20 @@ using UnityEngine.UI;
 
 public class TraceReader : MonoBehaviour
 {
+    struct BirdInfo
+    {
+        public List<Vector3> positions;
+        public List<Vector3> directions;
+
+        public BirdInfo(List<Vector3> pos, List<Vector3> dir) { positions = pos; directions = dir; }
+    };
+
     public GameObject bird;
     private List<List<float[]>> tracePositions = new List<List<float[]>>();
-    private List<List<Vector3[]>> currentPositions = new List<List<Vector3[]>>();
+    private List<BirdInfo> birdInfos = new List<BirdInfo>();
     private List<GameObject> birds = new List<GameObject>();
-    private int FRAME_MAX = 67;
-    private int TRACE_MAX = 2;
+    private int FRAME_MAX = 70;
+    private int TRACE_MAX = 5;
 
     // Use this for initialization
     void Start()
@@ -20,11 +28,12 @@ public class TraceReader : MonoBehaviour
         {
             tracePositions.Insert(i, new List<float[]>());
             List<float[]> position = tracePositions[i];
-            if (loadTraceFromCSV("trace" + (i+1).ToString(), ref position))
+            if (loadTraceFromCSV("trace0" + (i+1).ToString(), ref position))
             {
                 SpawnBird(position);
             }
         }
+        InitBirdInfos();
     }
 
     // Update is called once per frame
@@ -38,6 +47,52 @@ public class TraceReader : MonoBehaviour
         for (int i = 0; i < TRACE_MAX; i++)
         {
             UpdateBird(i, tracePositions[i]);
+        }
+    }
+
+    public void InitBirdInfos()
+    {
+        // project screen to world
+        for (int i = 0; i < TRACE_MAX; i++)
+        {
+            List<Vector3> positions = new List<Vector3>();
+            List<Vector3> directions = new List<Vector3>();
+            for (int j = 0; j < FRAME_MAX; j++)
+            {
+                //Debug.Log("Init" + i + " , " + j);
+                float[] data = tracePositions[i][j];
+                Vector3 pos = ScreenToWorld(data[1], data[2]);
+                positions.Insert(j, pos);
+                directions.Insert(j, Vector3.zero);
+            }
+            BirdInfo info = new BirdInfo(positions, directions);
+            birdInfos.Insert(i, info);
+        }
+
+        for (int i = 0; i < TRACE_MAX; i++)
+        {
+            for (int j = 0; j < FRAME_MAX - 1; j++)
+            {
+                birdInfos[i].directions[j] = birdInfos[i].positions[j + 1] - birdInfos[i].positions[j];
+            }
+        }
+
+        for (int i = 0; i < TRACE_MAX; i++)
+        {
+            for (int j = 0; j < FRAME_MAX - 1; j++)
+            {
+                if (birdInfos[i].directions[j] == Vector3.zero)
+                {
+                    for (int k = j + 1; k < FRAME_MAX - 1; k++)
+                    {
+                        if (birdInfos[i].directions[k] != Vector3.zero)
+                        {
+                            birdInfos[i].directions[j] = birdInfos[i].directions[k];
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -76,14 +131,18 @@ public class TraceReader : MonoBehaviour
         GameObject boid = birds[no];
         GameObject slider_object = GameObject.Find("Slider");
         Slider slider = slider_object.GetComponent<Slider>();
+        GameObject text_object = GameObject.Find("FrameText");
+        Text text = text_object.GetComponent<Text>();
         int frame = (int)(slider.value * FRAME_MAX);
 
-        float[] data = tracePositionList[frame];
-        float posX = (float)(1280 * data[1]);
-        float posY = (float)(458 * (1.0 - data[2]));
-        Vector3 pos = new Vector3(posX, posY, 10.0f);
-        Vector3 v3 = Camera.main.ScreenToWorldPoint(pos);
-        boid.transform.position = v3;
+        if (frame >= FRAME_MAX - 1) frame = FRAME_MAX - 1;
+
+        boid.transform.position = birdInfos[no].positions[frame];
+
+        Vector3 dir = birdInfos[no].directions[frame];
+        boid.transform.rotation = Quaternion.LookRotation(dir);
+
+        text.text = "Frame: " + frame;
     }
 
     public void SpawnBirdOnMouse()
