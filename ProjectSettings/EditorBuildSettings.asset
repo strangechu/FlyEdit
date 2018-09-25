@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/MainScene.unity
-    guid: 09b9b8ed70d6c8b44a914c387921c790
+    path: Assets/BirdSpawn.unity
+    guid: 1ece40caeda64fd4dbd2e7a941076446
   m_configObjects: {}
