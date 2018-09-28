@@ -15,11 +15,16 @@ public class TraceReader : MonoBehaviour
     };
 
     public GameObject bird;
+    public GameObject sphere;
+    private GameObject center_object;
     private List<List<float[]>> tracePositions = new List<List<float[]>>();
     private List<BirdInfo> birdInfos = new List<BirdInfo>();
     private List<GameObject> birds = new List<GameObject>();
+    private List<Vector3> centerPositions = new List<Vector3>();
     private int FRAME_MAX = 70;
     private int TRACE_MAX = 5;
+
+    private int frame = 0;
 
     // Use this for initialization
     void Start()
@@ -30,10 +35,11 @@ public class TraceReader : MonoBehaviour
             List<float[]> position = tracePositions[i];
             if (loadTraceFromCSV("trace0" + (i+1).ToString(), ref position))
             {
-                SpawnBird(position);
+                SpawnBird(i);
             }
         }
         InitBirdInfos();
+        ProcessBirdInfos();
     }
 
     // Update is called once per frame
@@ -44,10 +50,16 @@ public class TraceReader : MonoBehaviour
             //SpawnBirdOnMouse();
         }
 
+        GameObject slider_object = GameObject.Find("Slider");
+        Slider slider = slider_object.GetComponent<Slider>();
+        frame = (int)(slider.value * FRAME_MAX);
+        if (frame >= FRAME_MAX - 1) frame = FRAME_MAX - 1;
+
         for (int i = 0; i < TRACE_MAX; i++)
         {
             UpdateBird(i, tracePositions[i]);
         }
+        center_object.transform.position = centerPositions[frame];
     }
 
     public void InitBirdInfos()
@@ -61,7 +73,14 @@ public class TraceReader : MonoBehaviour
             {
                 //Debug.Log("Init" + i + " , " + j);
                 float[] data = tracePositions[i][j];
-                Vector3 pos = ScreenToWorld(data[1], data[2]);
+                float d = 10.0f;
+                if (i == 0)
+                    d -= 2.0f * j / FRAME_MAX;
+                else if (i == 1)
+                    d -= 1.0f * j / FRAME_MAX;
+                else if (i == 4)
+                    d += 1.5f * j / FRAME_MAX;
+                Vector3 pos = ScreenToWorld(data[1], data[2], d);
                 positions.Insert(j, pos);
                 directions.Insert(j, Vector3.zero);
             }
@@ -85,7 +104,7 @@ public class TraceReader : MonoBehaviour
                 {
                     for (int k = j + 1; k < FRAME_MAX - 1; k++)
                     {
-                        if (birdInfos[i].directions[k] != Vector3.zero)
+                        if (birdInfos[i].directions[k].magnitude < Mathf.Epsilon)
                         {
                             birdInfos[i].directions[j] = birdInfos[i].directions[k];
                             break;
@@ -96,11 +115,28 @@ public class TraceReader : MonoBehaviour
         }
     }
 
-    public Vector3 ScreenToWorld (float x, float y)
+    public void ProcessBirdInfos()
+    {
+        // Find center
+        for (int i = 0; i < FRAME_MAX - 1; i++)
+        {
+            Vector3 center = Vector3.zero;
+            for (int j = 0; j < TRACE_MAX; j++)
+            {
+                center += birdInfos[j].positions[i];
+            }
+            center /= TRACE_MAX;
+            centerPositions.Add(center);
+        }
+        center_object = Instantiate(sphere);
+        center_object.transform.position = centerPositions[0];
+    }
+
+        public Vector3 ScreenToWorld (float x, float y, float d)
     {
         float posX = (float)(1280 * x);
         float posY = (float)(458 * (1.0 - y));
-        Vector3 pos = Camera.main.ScreenToWorldPoint(new Vector3(posX, posY, 10.0f));
+        Vector3 pos = Camera.main.ScreenToWorldPoint(new Vector3(posX, posY, d));
         return pos;
     }
 
@@ -110,18 +146,20 @@ public class TraceReader : MonoBehaviour
         foreach (float[] data in tracePositionList)
         {
             GameObject boid = Instantiate(bird);
-            boid.transform.position = ScreenToWorld(data[1], data[2]);
+            float d = 10.0f;
+            boid.transform.position = ScreenToWorld(data[1], data[2], d);
             boid.name = count.ToString();
             count++;
         }
     }
 
-    public void SpawnBird(List<float[]> tracePositionList)
+    public void SpawnBird(int no)
     {
-        float[] data = tracePositionList[0];
+        float[] data = tracePositions[no][0];
         GameObject boid = Instantiate(bird);
         boid.name = "Bird" + birds.Count;
-        boid.transform.position = ScreenToWorld(data[1], data[2]);
+        float d = 10.0f;
+        boid.transform.position = ScreenToWorld(data[1], data[2], d);
         birds.Add(boid);
         Debug.Log("Boid " + birds.Count + " spawned X=" + boid.transform.position.x + " Y=" + boid.transform.position.y);
     }
@@ -129,18 +167,20 @@ public class TraceReader : MonoBehaviour
     public void UpdateBird(int no, List<float[]> tracePositionList)
     {
         GameObject boid = birds[no];
-        GameObject slider_object = GameObject.Find("Slider");
-        Slider slider = slider_object.GetComponent<Slider>();
         GameObject text_object = GameObject.Find("FrameText");
         Text text = text_object.GetComponent<Text>();
-        int frame = (int)(slider.value * FRAME_MAX);
-
-        if (frame >= FRAME_MAX - 1) frame = FRAME_MAX - 1;
 
         boid.transform.position = birdInfos[no].positions[frame];
 
         Vector3 dir = birdInfos[no].directions[frame];
-        boid.transform.rotation = Quaternion.LookRotation(dir);
+        if (dir != Vector3.zero)
+        {
+            boid.transform.rotation = Quaternion.LookRotation(dir);
+        }
+        else
+        {
+            boid.transform.rotation = Quaternion.identity;
+        }
 
         text.text = "Frame: " + frame;
     }
