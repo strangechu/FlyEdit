@@ -23,8 +23,19 @@ public class TraceReader : MonoBehaviour
     private List<Vector3> centerPositions = new List<Vector3>();
     private int FRAME_MAX = 70;
     private int TRACE_MAX = 5;
+    private int SEPARATION_DIST = 10;
 
     private int frame = 0;
+
+    Vector3 GetBirdPosition (int no, int frame)
+    {
+        return birdInfos[no].positions[frame];
+    }
+
+    Vector3 GetBirdDirection(int no, int frame)
+    {
+        return birdInfos[no].directions[frame];
+    }
 
     // Use this for initialization
     void Start()
@@ -58,6 +69,8 @@ public class TraceReader : MonoBehaviour
         for (int i = 0; i < TRACE_MAX; i++)
         {
             UpdateBird(i, tracePositions[i]);
+            Vector3 seperation = CalcSeparation(i, frame);
+            DrawVector(GetBirdPosition(i, frame), seperation);
         }
         center_object.transform.position = centerPositions[frame];
     }
@@ -88,6 +101,7 @@ public class TraceReader : MonoBehaviour
             birdInfos.Insert(i, info);
         }
 
+        // set directions
         for (int i = 0; i < TRACE_MAX; i++)
         {
             for (int j = 0; j < FRAME_MAX - 1; j++)
@@ -260,5 +274,35 @@ public class TraceReader : MonoBehaviour
             }
         }
         return true;
+    }
+
+    Vector3 CalcSeparation (int no, int frame)
+    {
+        Vector3 force = Vector3.zero;
+        Vector3 my_pos = GetBirdPosition(no, frame);
+        int count = 0;
+        for (int i = 0; i < TRACE_MAX; i++)
+        {
+            Vector3 i_pos = GetBirdPosition(i, frame);
+            if (i == no) continue;
+            float distance = Vector3.Distance(my_pos, i_pos);
+            if (distance > 0 && distance < SEPARATION_DIST)
+            {
+                force += (my_pos - i_pos).normalized / distance;
+                count++;
+            }
+        }
+
+        if (count > 0)
+        {
+            force = (force / count).normalized;
+            return force;
+        }
+        return Vector3.zero;
+    }
+
+    void DrawVector (Vector3 pos, Vector3 v)
+    {
+        Debug.DrawRay(pos, v, Color.red);
     }
 }
