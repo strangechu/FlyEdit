@@ -82,9 +82,11 @@ public class TraceReader : MonoBehaviour
             }
             //center_object.transform.position = centerPositions[frame];
         }
+
+        // debug draw
         for (int i = 0; i < TRACE_MAX; i++)
         {
-            Vector3 seperation = CalcSeperation(i, frame);
+            Vector3 seperation = CalcSeparation(i, frame);
             Debug.DrawRay(GetBirdPosition(i, frame), seperation, Color.red);
             Debug.DrawRay(GetBirdPosition(i, frame), GetBirdDirection(i, frame).normalized, Color.green);
         }
@@ -118,7 +120,7 @@ public class TraceReader : MonoBehaviour
                 float x = data[1];
                 float y = data[2];
                 float pre_d = GetBirdDistance(i, j - 1);
-                Vector3 seperation = CalcSeperation(i, j - 1) * SEPERATION_WEIGHT;
+                Vector3 seperation = CalcSeparation(i, j - 1) * SEPERATION_WEIGHT;
                 Vector3 pos = ScreenToWorld(x, y, pre_d);
                 Vector3 camera_pos = Camera.main.transform.position;
                 Vector3 v = (pos - camera_pos).normalized;
@@ -140,7 +142,9 @@ public class TraceReader : MonoBehaviour
                 Vector3 pre_pos = GetBirdPosition(i, j - 1);
                 Vector3 pos = GetBirdPosition(i, j);
                 Vector3 pre_dir = GetBirdDirection(i, j - 1);
-                birdInfos[i].directions[j] = pre_dir * 0.1f + (pos - pre_pos);
+                Vector3 v = pos - pre_pos;
+                //birdInfos[i].directions[j] = pre_dir * 0.1f + (pos - pre_pos);
+                birdInfos[i].directions[j] = Vector3.Lerp(pre_dir, v, 0.1f);
             }
         }
 
@@ -183,9 +187,9 @@ public class TraceReader : MonoBehaviour
 
         public Vector3 ScreenToWorld (float x, float y, float d)
     {
-        float posX = (float)(1280 * x);
-        float posY = (float)(458 * (1.0 - y));
-        Vector3 pos = Camera.main.ScreenToWorldPoint(new Vector3(posX, posY, d));
+        //float posX = (float)(1280 * x);
+        //float posY = (float)(458 * (1.0 - y));
+        Vector3 pos = Camera.main.ScreenToWorldPoint(new Vector3(Camera.main.pixelWidth * x, Camera.main.pixelHeight * y, d));
         return pos;
     }
 
@@ -311,7 +315,7 @@ public class TraceReader : MonoBehaviour
         return true;
     }
 
-    Vector3 CalcSeperation (int no, int frame)
+    Vector3 CalcSeparation (int no, int frame)
     {
         Vector3 force = Vector3.zero;
         Vector3 my_pos = GetBirdPosition(no, frame);
