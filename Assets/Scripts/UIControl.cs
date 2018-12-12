@@ -32,25 +32,26 @@ public class UIControl : MonoBehaviour {
 
     void OnClickOptimizeBtn()
     {
-        try
-        {
-            print("Optimization start.");
-            Process myProcess = new Process();
-            myProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
-            myProcess.StartInfo.CreateNoWindow = false;
-            myProcess.StartInfo.UseShellExecute = false;
-            string filePath = System.IO.Path.Combine(Application.streamingAssetsPath, "BirdOpti.exe");
-            myProcess.StartInfo.FileName = filePath;
-            myProcess.StartInfo.Arguments = filePath;
-            myProcess.EnableRaisingEvents = true;
-            myProcess.Start();
-            myProcess.WaitForExit();
-            int ExitCode = myProcess.ExitCode;
-        }
-        catch (Exception e)
-        {
-            print(e);
-        }
-        print("Optimization end.");
+        TraceReader.instance.Optimize();
+        //try
+        //{
+        //    print("Optimization start.");
+        //    Process myProcess = new Process();
+        //    myProcess.StartInfo.WindowStyle = ProcessWindowStyle.Normal;
+        //    myProcess.StartInfo.CreateNoWindow = false;
+        //    myProcess.StartInfo.UseShellExecute = false;
+        //    string filePath = System.IO.Path.Combine(Application.streamingAssetsPath, "BirdOpti.exe");
+        //    myProcess.StartInfo.FileName = filePath;
+        //    myProcess.StartInfo.Arguments = filePath;
+        //    myProcess.EnableRaisingEvents = true;
+        //    myProcess.Start();
+        //    myProcess.WaitForExit();
+        //    int ExitCode = myProcess.ExitCode;
+        //}
+        //catch (Exception e)
+        //{
+        //    print(e);
+        //}
+        //print("Optimization end.");
     }
 }

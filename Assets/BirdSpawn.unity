@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -292,7 +292,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchCameraBtn: {fileID: 1945852203}
-  optimizeBtn: {fileID: 0}
+  optimizeBtn: {fileID: 812123605}
 --- !u!1 &546691145
 GameObject:
   m_ObjectHideFlags: 0
@@ -1193,7 +1193,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -321.68, y: -200}
-  m_SizeDelta: {x: 70, y: 21.36}
+  m_SizeDelta: {x: 100, y: 21.36}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2029775455
 MonoBehaviour:
@@ -1402,8 +1402,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bird: {fileID: 1411649459638418, guid: b3092cd6dd2dbc24faa24b7de057ce5a, type: 2}
   sphere: {fileID: 1572545212139274, guid: 94bd4561d9713564a911dc4da0956f7c, type: 2}
-  SEPERATION_DIST: 1
-  SEPERATION_WEIGHT: 0
+  SEPERATION_DIST: 2
+  SEPERATION_WEIGHT: 0.1
 --- !u!114 &2139738537
 MonoBehaviour:
   m_ObjectHideFlags: 0

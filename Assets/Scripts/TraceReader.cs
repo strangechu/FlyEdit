@@ -22,12 +22,14 @@ public class TraceReader : MonoBehaviour
     private List<BirdInfo> birdInfos = new List<BirdInfo>();
     private List<GameObject> birds = new List<GameObject>();
     private List<Vector3> centerPositions = new List<Vector3>();
-    private int FRAME_MAX = /*70*/194;
+    private int FRAME_MAX = /*70*/154;
     private int TRACE_MAX = 5;
-    public int SEPERATION_DIST = 2;
-    public float SEPERATION_WEIGHT = 0.1f;
+    public int SEPERATION_DIST = 50;
+    public float SEPERATION_WEIGHT = 0.5f;
 
     private int frame = -1;
+
+    public static TraceReader instance = null;
 
     Vector3 GetBirdPosition (int no, int frame)
     {
@@ -46,6 +48,9 @@ public class TraceReader : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        if (instance == null)
+            instance = this;
+
         // load trace data
         for (int i = 0; i < TRACE_MAX; i++)
         {
@@ -53,6 +58,28 @@ public class TraceReader : MonoBehaviour
             List<float[]> position = tracePositions[i];
             if (loadTraceFromCSV("trace0" + (i+1).ToString() + "_turn", ref position))
             {
+                /////////
+                // custom trajactory
+                float offset_x = Random.Range(-0.2f, 0.2f);
+                float offset_y = Random.Range(0.0f, 0.4f);
+
+                position.Clear();
+                for (int j = 0; j < 360; j++)
+                {
+                    float[] f = new float[4];
+                    float count = 0;
+                    float cos = Mathf.Cos(j * 2 * Mathf.Deg2Rad);
+                    float sin = Mathf.Sin(j * 2 * Mathf.Deg2Rad);
+                    f[0] = count;
+                    f[1] = cos * 0.5f * 0.5f + 0.5f + offset_x;
+                    f[2] = sin * 0.5f * 0.25f + 0.5f + offset_y;
+                    f[3] = 0;
+                    //Debug.Log("Frame " + f[0] + " : X=" + f[1] + " Y=" + f[2]);
+                    position.Add(f);
+                    count++;
+                }
+                FRAME_MAX = 360;
+                ////////
                 SpawnBird(i);
             }
         }
@@ -143,8 +170,9 @@ public class TraceReader : MonoBehaviour
                 Vector3 pos = GetBirdPosition(i, j);
                 Vector3 pre_dir = GetBirdDirection(i, j - 1);
                 Vector3 v = pos - pre_pos;
+                Vector3 direction = Vector3.Slerp(pre_dir, v, 0.1f);
                 //birdInfos[i].directions[j] = pre_dir * 0.1f + (pos - pre_pos);
-                birdInfos[i].directions[j] = Vector3.Lerp(pre_dir, v, 0.1f);
+                birdInfos[i].directions[j] = direction;
             }
         }
 
@@ -228,7 +256,16 @@ public class TraceReader : MonoBehaviour
         Vector3 dir = GetBirdDirection(no, frame);
         if (dir != Vector3.zero)
         {
-            boid.transform.rotation = Quaternion.LookRotation(dir);
+            Quaternion q_rot = Quaternion.LookRotation(dir);
+            boid.transform.rotation = q_rot;
+
+            // angle of elevation cap
+            var rot = boid.transform.rotation.eulerAngles;
+            if ((rot.x > 30f && rot.x < 90f) || (rot.x > 90f && rot.x < 150f))
+                rot.x = 30f;
+            else if ((rot.x > 210.0f && rot.x < 270f) || (rot.x > 270f && rot.x < 330f))
+                rot.x = 330f;
+            boid.transform.rotation = Quaternion.Euler(rot);
         }
         else
         {
@@ -312,6 +349,15 @@ public class TraceReader : MonoBehaviour
                 count++;
             }
         }
+        FRAME_MAX = (int)count;
+
+        // reverse try
+        //List<float[]> reversed = new List<float[]>();
+        //reversed.AddRange(loadedTracePosition);
+        //reversed.Reverse();
+        //FRAME_MAX = (int)count;
+        //loadedTracePosition.AddRange(reversed);
+        //FRAME_MAX = (int)count * 2;
         return true;
     }
 
@@ -338,5 +384,10 @@ public class TraceReader : MonoBehaviour
             return force;
         }
         return Vector3.zero;
+    }
+
+    public void Optimize ()
+    {
+        Debug.Log("Optimize start.");
     }
 }
