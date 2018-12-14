@@ -81,6 +81,9 @@ public class TraceReader : MonoBehaviour
                 FRAME_MAX = 360;
                 ////////
                 SpawnBird(i);
+
+                int a = BirdOpti.Add(2, 3);
+                a++;
             }
         }
         InitBirdInfos();
@@ -389,5 +392,8 @@ public class TraceReader : MonoBehaviour
     public void Optimize ()
     {
         Debug.Log("Optimize start.");
+        // BirdOpti test
+        int a = BirdOpti.Add(2, 3);
+        Debug.Log(a);
     }
 }
