@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using UnityEngine.UI;
+using System;
+using System.Runtime.InteropServices;
 
 public class TraceReader : MonoBehaviour
 {
@@ -60,8 +62,8 @@ public class TraceReader : MonoBehaviour
             {
                 /////////
                 // custom trajactory
-                float offset_x = Random.Range(-0.2f, 0.2f);
-                float offset_y = Random.Range(0.0f, 0.4f);
+                float offset_x = UnityEngine.Random.Range(-0.2f, 0.2f);
+                float offset_y = UnityEngine.Random.Range(0.0f, 0.4f);
 
                 position.Clear();
                 for (int j = 0; j < 360; j++)
@@ -81,9 +83,6 @@ public class TraceReader : MonoBehaviour
                 FRAME_MAX = 360;
                 ////////
                 SpawnBird(i);
-
-                int a = BirdOpti.Add(2, 3);
-                a++;
             }
         }
         InitBirdInfos();
@@ -131,7 +130,7 @@ public class TraceReader : MonoBehaviour
             List<Vector3> directions = new List<Vector3>();
             List<float> distances = new List<float>();
             float[] data = tracePositions[i][0];
-            float d = Random.Range(8.0f, 12.0f); // default distance
+            float d = UnityEngine.Random.Range(8.0f, 12.0f); // default distance
             Vector3 pos = ScreenToWorld(data[1], data[2], d);
             positions.Insert(0, pos);
             directions.Insert(0, Vector3.zero);
@@ -395,5 +394,20 @@ public class TraceReader : MonoBehaviour
         // BirdOpti test
         int a = BirdOpti.Add(2, 3);
         Debug.Log(a);
+
+        float[] data = { 1.1f, 2.2f, 3.3f };
+        IntPtr data_ptr = Marshal.AllocHGlobal(data.Length * sizeof(float));
+        Marshal.Copy(data, 0, data_ptr, data.Length);
+        BirdOpti.LoadData(data.Length, data_ptr);
+        int length = 0;
+        IntPtr data_out_ptr = IntPtr.Zero;
+        /*data_out_ptr = */BirdOpti.OutputData(ref length, ref data_out_ptr);
+        //length = Marshal.SizeOf(data_out_ptr)/*Marshal.ReadInt32(data_out_ptr)*/;
+        Debug.Log(length);
+        float[] data_out = new float[length];
+        Marshal.Copy(data_out_ptr, data_out, 0, length);
+        Debug.Log(data_out[0] + " " + data_out[1] + " " + data_out [2]);
+        BirdOpti.ReleaseAll();
+        Marshal.FreeHGlobal(data_ptr);
     }
 }
