@@ -10,7 +10,7 @@ public class BirdOpti : MonoBehaviour {
     public static extern int Add(int a, int b);
 
     [DllImport("BirdOpti")]
-    public static extern bool LoadData(int size, IntPtr data);
+    public static extern bool LoadData(int boid_num, int frame_num, IntPtr data);
 
     [DllImport("BirdOpti")]
     public static extern IntPtr OutputData(ref int size, ref IntPtr data);

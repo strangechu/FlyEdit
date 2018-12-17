@@ -13,8 +13,9 @@ public class TraceReader : MonoBehaviour
         public List<Vector3> positions;
         public List<Vector3> directions;
         public List<float> distances;
+        public List<Vector3> rays;
 
-        public BirdInfo(List<Vector3> pos, List<Vector3> dir, List<float> dis) { positions = pos; directions = dir; distances = dis; }
+        public BirdInfo(List<Vector3> pos, List<Vector3> dir, List<float> dis, List<Vector3> ray) { positions = pos; directions = dir; distances = dis; rays = ray; }
     };
 
     public GameObject bird;
@@ -26,6 +27,9 @@ public class TraceReader : MonoBehaviour
     private List<Vector3> centerPositions = new List<Vector3>();
     private int FRAME_MAX = /*70*/154;
     private int TRACE_MAX = 5;
+    public Camera main_camera;
+
+
     public int SEPERATION_DIST = 50;
     public float SEPERATION_WEIGHT = 0.5f;
 
@@ -33,9 +37,14 @@ public class TraceReader : MonoBehaviour
 
     public static TraceReader instance = null;
 
-    Vector3 GetBirdPosition (int no, int frame)
+    Vector3 GetBirdPosition(int no, int frame)
     {
         return birdInfos[no].positions[frame];
+    }
+
+    void SetBirdPosition(int no, int frame, Vector3 pos)
+    {
+        birdInfos[no].positions[frame] = pos;
     }
 
     Vector3 GetBirdDirection(int no, int frame)
@@ -47,6 +56,12 @@ public class TraceReader : MonoBehaviour
     {
         return birdInfos[no].distances[frame];
     }
+
+    Vector3 GetBirdRay(int no, int frame)
+    {
+        return birdInfos[no].rays[frame];
+    }
+
     // Use this for initialization
     void Start()
     {
@@ -58,29 +73,30 @@ public class TraceReader : MonoBehaviour
         {
             tracePositions.Insert(i, new List<float[]>());
             List<float[]> position = tracePositions[i];
-            if (loadTraceFromCSV("trace0" + (i+1).ToString() + "_turn", ref position))
+            if (loadTraceFromCSV("trace0" + (i + 1).ToString() + "_turn", ref position))
             {
                 /////////
                 // custom trajactory
-                float offset_x = UnityEngine.Random.Range(-0.2f, 0.2f);
-                float offset_y = UnityEngine.Random.Range(0.0f, 0.4f);
+                //UnityEngine.Random.InitState(5566);
+                //float offset_x = UnityEngine.Random.Range(-0.2f, 0.2f);
+                //float offset_y = UnityEngine.Random.Range(0.0f, 0.4f);
 
-                position.Clear();
-                for (int j = 0; j < 360; j++)
-                {
-                    float[] f = new float[4];
-                    float count = 0;
-                    float cos = Mathf.Cos(j * 2 * Mathf.Deg2Rad);
-                    float sin = Mathf.Sin(j * 2 * Mathf.Deg2Rad);
-                    f[0] = count;
-                    f[1] = cos * 0.5f * 0.5f + 0.5f + offset_x;
-                    f[2] = sin * 0.5f * 0.25f + 0.5f + offset_y;
-                    f[3] = 0;
-                    //Debug.Log("Frame " + f[0] + " : X=" + f[1] + " Y=" + f[2]);
-                    position.Add(f);
-                    count++;
-                }
-                FRAME_MAX = 360;
+                //position.Clear();
+                //for (int j = 0; j < 360; j++)
+                //{
+                //    float[] f = new float[4];
+                //    float count = 0;
+                //    float cos = Mathf.Cos(j * 2 * Mathf.Deg2Rad);
+                //    float sin = Mathf.Sin(j * 2 * Mathf.Deg2Rad);
+                //    f[0] = count;
+                //    f[1] = cos * 0.5f * 0.5f + 0.5f + offset_x;
+                //    f[2] = sin * 0.5f * 0.25f + 0.5f + offset_y;
+                //    f[3] = 0;
+                //    //Debug.Log("Frame " + f[0] + " : X=" + f[1] + " Y=" + f[2]);
+                //    position.Add(f);
+                //    count++;
+                //}
+                //FRAME_MAX = 360;
                 ////////
                 SpawnBird(i);
             }
@@ -118,6 +134,7 @@ public class TraceReader : MonoBehaviour
             Vector3 seperation = CalcSeparation(i, frame);
             Debug.DrawRay(GetBirdPosition(i, frame), seperation, Color.red);
             Debug.DrawRay(GetBirdPosition(i, frame), GetBirdDirection(i, frame).normalized, Color.green);
+            Debug.DrawRay(main_camera.transform.position, GetBirdRay(i, frame), Color.yellow);
         }
     }
 
@@ -129,13 +146,16 @@ public class TraceReader : MonoBehaviour
             List<Vector3> positions = new List<Vector3>();
             List<Vector3> directions = new List<Vector3>();
             List<float> distances = new List<float>();
+            List<Vector3> rays = new List<Vector3>();
             float[] data = tracePositions[i][0];
             float d = UnityEngine.Random.Range(8.0f, 12.0f); // default distance
-            Vector3 pos = ScreenToWorld(data[1], data[2], d);
+            Vector3 pos = ScreenToWorld(data[1], data[2], 20.0f);
+            Vector3 ray = ScreenToRay(data[1], data[2]);
             positions.Insert(0, pos);
             directions.Insert(0, Vector3.zero);
             distances.Insert(0, d);
-            BirdInfo info = new BirdInfo(positions, directions, distances);
+            rays.Insert(0, ray);
+            BirdInfo info = new BirdInfo(positions, directions, distances, rays);
             birdInfos.Insert(i, info);
         }
 
@@ -149,17 +169,19 @@ public class TraceReader : MonoBehaviour
                 float x = data[1];
                 float y = data[2];
                 float pre_d = GetBirdDistance(i, j - 1);
+                Vector3 ray = ScreenToRay(x, y);
                 Vector3 seperation = CalcSeparation(i, j - 1) * SEPERATION_WEIGHT;
                 Vector3 pos = ScreenToWorld(x, y, pre_d);
-                Vector3 camera_pos = Camera.main.transform.position;
+                Vector3 camera_pos = main_camera.transform.position;
                 Vector3 v = (pos - camera_pos).normalized;
                 Vector3 projected_v = Vector3.Project(seperation, v);
                 pos += projected_v;
                 Vector3 heading = pos - camera_pos;
-                float d = Vector3.Dot(heading, Camera.main.transform.forward);
+                float d = Vector3.Dot(heading, main_camera.transform.forward);
                 birdInfos[i].positions.Insert(j, pos);
                 birdInfos[i].directions.Insert(j, Vector3.zero);
                 birdInfos[i].distances.Insert(j, d);
+                birdInfos[i].rays.Insert(j, ray);
             }
         }
 
@@ -173,7 +195,6 @@ public class TraceReader : MonoBehaviour
                 Vector3 pre_dir = GetBirdDirection(i, j - 1);
                 Vector3 v = pos - pre_pos;
                 Vector3 direction = Vector3.Slerp(pre_dir, v, 0.1f);
-                //birdInfos[i].directions[j] = pre_dir * 0.1f + (pos - pre_pos);
                 birdInfos[i].directions[j] = direction;
             }
         }
@@ -215,12 +236,17 @@ public class TraceReader : MonoBehaviour
         //center_object.transform.position = centerPositions[0];
     }
 
-        public Vector3 ScreenToWorld (float x, float y, float d)
+    public Vector3 ScreenToWorld(float x, float y, float d)
     {
         //float posX = (float)(1280 * x);
         //float posY = (float)(458 * (1.0 - y));
-        Vector3 pos = Camera.main.ScreenToWorldPoint(new Vector3(Camera.main.pixelWidth * x, Camera.main.pixelHeight * y, d));
+        Vector3 pos = main_camera.ScreenToWorldPoint(new Vector3(main_camera.pixelWidth * x, main_camera.pixelHeight * y, d));
         return pos;
+    }
+    public Vector3 ScreenToRay(float x, float y)
+    {
+        Ray ray = main_camera.ScreenPointToRay(new Vector3(main_camera.pixelWidth * x, main_camera.pixelHeight * y, 0.0f));
+        return ray.direction;
     }
 
     public void SpawnBirds(List<float[]> tracePositionList)
@@ -281,8 +307,8 @@ public class TraceReader : MonoBehaviour
     {
         Vector3 pos = (Input.mousePosition);
         pos.z = 10.0f;
-        Ray ray = Camera.main.ScreenPointToRay(pos);
-        Vector3 v3 = Camera.main.ScreenToWorldPoint(pos);
+        Ray ray = main_camera.ScreenPointToRay(pos);
+        Vector3 v3 = main_camera.ScreenToWorldPoint(pos);
         GameObject boid = Instantiate(bird);
         boid.transform.position = v3;
         Debug.Log("SpawnBirdOnMouse : X=" + pos.x + " Y=" + pos.y);
@@ -343,8 +369,8 @@ public class TraceReader : MonoBehaviour
             {
                 float[] f = new float[4];
                 f[0] = count;
-                f[1] = float.Parse(data[0])/1280;
-                f[2] = float.Parse(data[1])/719;
+                f[1] = float.Parse(data[0]) / 1280;
+                f[2] = float.Parse(data[1]) / 719;
                 f[3] = float.Parse(data[2]);
                 //Debug.Log("Frame " + f[0] + " : X=" + f[1] + " Y=" + f[2]);
                 loadedTracePosition.Add(f);
@@ -363,7 +389,7 @@ public class TraceReader : MonoBehaviour
         return true;
     }
 
-    Vector3 CalcSeparation (int no, int frame)
+    Vector3 CalcSeparation(int no, int frame)
     {
         Vector3 force = Vector3.zero;
         Vector3 my_pos = GetBirdPosition(no, frame);
@@ -388,25 +414,67 @@ public class TraceReader : MonoBehaviour
         return Vector3.zero;
     }
 
-    public void Optimize ()
+    public void Optimize()
     {
         Debug.Log("Optimize start.");
         // BirdOpti test
         int a = BirdOpti.Add(2, 3);
         Debug.Log(a);
 
-        float[] data = { 1.1f, 2.2f, 3.3f };
+        // plugin passing test
+        ////////
+        //float[] data = { 1.1f, 2.2f, 3.3f };
+        //IntPtr data_ptr = Marshal.AllocHGlobal(data.Length * sizeof(float));
+        //Marshal.Copy(data, 0, data_ptr, data.Length);
+        //BirdOpti.LoadData(data.Length, data_ptr);
+        //int length = 0;
+        //IntPtr data_out_ptr = IntPtr.Zero;
+        //BirdOpti.OutputData(ref length, ref data_out_ptr);
+        //Debug.Log(length);
+        //float[] data_out = new float[length];
+        //Marshal.Copy(data_out_ptr, data_out, 0, length);
+        //Debug.Log(data_out[0] + " " + data_out[1] + " " + data_out [2]);
+        //BirdOpti.ReleaseAll();
+        //Marshal.FreeHGlobal(data_ptr);
+        ////////
+
+        int agent_num = 5;
+        int frame_num = 150;
+        float[] data = new float[3 * agent_num * frame_num];
+        int index = 0;
+        for (int i = 0; i < agent_num; i++)
+        {
+            for (int j = 0; j < frame_num; j++)
+            {
+                Vector3 ray = GetBirdRay(i, j);
+                data[index] = ray.x;
+                data[index + 1] = ray.y;
+                data[index + 2] = ray.z;
+                index += 3;
+            }
+        }
         IntPtr data_ptr = Marshal.AllocHGlobal(data.Length * sizeof(float));
         Marshal.Copy(data, 0, data_ptr, data.Length);
-        BirdOpti.LoadData(data.Length, data_ptr);
+        BirdOpti.LoadData(agent_num, frame_num, data_ptr);
+
         int length = 0;
         IntPtr data_out_ptr = IntPtr.Zero;
-        /*data_out_ptr = */BirdOpti.OutputData(ref length, ref data_out_ptr);
-        //length = Marshal.SizeOf(data_out_ptr)/*Marshal.ReadInt32(data_out_ptr)*/;
+        BirdOpti.OutputData(ref length, ref data_out_ptr);
         Debug.Log(length);
         float[] data_out = new float[length];
         Marshal.Copy(data_out_ptr, data_out, 0, length);
-        Debug.Log(data_out[0] + " " + data_out[1] + " " + data_out [2]);
+        index = 0;
+        for (int i = 0; i < agent_num; i++)
+        {
+            for (int j = 0; j < frame_num; j++)
+            {
+                Vector3 pos = Vector3.zero;
+                pos.x = data_out[index++];
+                pos.y = data_out[index++];
+                pos.z = data_out[index++];
+                SetBirdPosition(i, j, main_camera.transform.position + pos);
+            }
+        }
         BirdOpti.ReleaseAll();
         Marshal.FreeHGlobal(data_ptr);
     }
