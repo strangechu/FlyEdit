@@ -307,7 +307,6 @@ public class TraceReader : MonoBehaviour
     {
         Vector3 pos = (Input.mousePosition);
         pos.z = 10.0f;
-        Ray ray = main_camera.ScreenPointToRay(pos);
         Vector3 v3 = main_camera.ScreenToWorldPoint(pos);
         GameObject boid = Instantiate(bird);
         boid.transform.position = v3;
@@ -417,10 +416,6 @@ public class TraceReader : MonoBehaviour
     public void Optimize()
     {
         Debug.Log("Optimize start.");
-        // BirdOpti test
-        int a = BirdOpti.Add(2, 3);
-        Debug.Log(a);
-
         // plugin passing test
         ////////
         //float[] data = { 1.1f, 2.2f, 3.3f };
@@ -439,7 +434,7 @@ public class TraceReader : MonoBehaviour
         ////////
 
         int agent_num = 5;
-        int frame_num = 150;
+        int frame_num = 30;
         float[] data = new float[3 * agent_num * frame_num];
         int index = 0;
         for (int i = 0; i < agent_num; i++)
@@ -447,10 +442,9 @@ public class TraceReader : MonoBehaviour
             for (int j = 0; j < frame_num; j++)
             {
                 Vector3 ray = GetBirdRay(i, j);
-                data[index] = ray.x;
-                data[index + 1] = ray.y;
-                data[index + 2] = ray.z;
-                index += 3;
+                data[index++] = ray.x;
+                data[index++] = ray.y;
+                data[index++] = ray.z;
             }
         }
         IntPtr data_ptr = Marshal.AllocHGlobal(data.Length * sizeof(float));
