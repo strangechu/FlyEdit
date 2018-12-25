@@ -9,7 +9,7 @@ public class Painter : MonoBehaviour {
     int height = 500;
     int brushWidth = 20;
     int brushHeight = 20;
-    Color brushColor;
+    Color brushColor = Color.red;
 
     int oldX, oldY;
 

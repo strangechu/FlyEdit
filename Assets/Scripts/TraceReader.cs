@@ -471,5 +471,7 @@ public class TraceReader : MonoBehaviour
         }
         BirdOpti.ReleaseAll();
         Marshal.FreeHGlobal(data_ptr);
+
+        Debug.Log("Optimize end. agent_num = " + agent_num + " , frame_num = " + frame_num);
     }
 }

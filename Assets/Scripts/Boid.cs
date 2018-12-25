@@ -15,7 +15,7 @@ public class Boid : MonoBehaviour
     private Transform separationArea;
     #endregion
 
-    private FlockManager flockManager;
+    //private FlockManager flockManager;
 
 	
 	void Start ()
@@ -26,7 +26,7 @@ public class Boid : MonoBehaviour
         separationArea = transform.Find("SeparationArea");
 
         // Flock
-        flockManager = GetComponentInParent<FlockManager>();
+        //flockManager = GetComponentInParent<FlockManager>();
 
         // Init
         transform.position = new Vector3(Random.value * 10f, Random.value * 10f, Random.value * 10f);
