@@ -434,7 +434,7 @@ public class TraceReader : MonoBehaviour
         ////////
 
         int agent_num = 5;
-        int frame_num = 30;
+        int frame_num = 150;
         float[] data = new float[3 * agent_num * frame_num];
         int index = 0;
         for (int i = 0; i < agent_num; i++)
@@ -453,7 +453,8 @@ public class TraceReader : MonoBehaviour
 
         int length = 0;
         IntPtr data_out_ptr = IntPtr.Zero;
-        BirdOpti.OutputData(ref length, ref data_out_ptr);
+        //BirdOpti.GlobalOptimize(ref length, ref data_out_ptr);
+        BirdOpti.StepOptimize(ref length, ref data_out_ptr);
         Debug.Log(length);
         float[] data_out = new float[length];
         Marshal.Copy(data_out_ptr, data_out, 0, length);
@@ -473,5 +474,20 @@ public class TraceReader : MonoBehaviour
         Marshal.FreeHGlobal(data_ptr);
 
         Debug.Log("Optimize end. agent_num = " + agent_num + " , frame_num = " + frame_num);
+
+        // set directions
+        for (int i = 0; i < agent_num; i++)
+        {
+            for (int j = 1; j < frame_num - 1; j++)
+            {
+                Vector3 pre_pos = GetBirdPosition(i, j - 1);
+                Vector3 pos = GetBirdPosition(i, j);
+                //Vector3 pre_dir = GetBirdDirection(i, j - 1);
+                Vector3 v = pos - pre_pos;
+                //Vector3 direction = Vector3.Slerp(pre_dir, v, 0.1f);
+                Vector3 direction = v;
+                birdInfos[i].directions[j] = direction;
+            }
+        }
     }
 }
