@@ -16,7 +16,7 @@ public class BirdOpti : MonoBehaviour {
     public static extern int GlobalOptimize(ref int size, ref IntPtr data);
 
     [DllImport("BirdOpti")]
-    public static extern int StepOptimize(ref int size, ref IntPtr data);
+    public static extern int StepOptimize(ref int size, ref IntPtr data, float min, float max, IntPtr param);
 
     [DllImport("BirdOpti")]
     public static extern void ReleaseAll();

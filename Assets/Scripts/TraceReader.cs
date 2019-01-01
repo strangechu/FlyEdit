@@ -451,10 +451,14 @@ public class TraceReader : MonoBehaviour
         Marshal.Copy(data, 0, data_ptr, data.Length);
         BirdOpti.LoadData(agent_num, frame_num, data_ptr);
 
+        float[] param_data = { 0.5f, 1.0f, 1.0f, 0.0f, 0.0f};
+        IntPtr param_data_ptr = Marshal.AllocHGlobal(param_data.Length * sizeof(float));
+        Marshal.Copy(param_data, 0, param_data_ptr, param_data.Length);
+
         int length = 0;
         IntPtr data_out_ptr = IntPtr.Zero;
         //BirdOpti.GlobalOptimize(ref length, ref data_out_ptr);
-        BirdOpti.StepOptimize(ref length, ref data_out_ptr);
+        BirdOpti.StepOptimize(ref length, ref data_out_ptr, 5f, 30f, param_data_ptr);
         Debug.Log(length);
         float[] data_out = new float[length];
         Marshal.Copy(data_out_ptr, data_out, 0, length);
@@ -472,6 +476,7 @@ public class TraceReader : MonoBehaviour
         }
         BirdOpti.ReleaseAll();
         Marshal.FreeHGlobal(data_ptr);
+        Marshal.FreeHGlobal(param_data_ptr);
 
         Debug.Log("Optimize end. agent_num = " + agent_num + " , frame_num = " + frame_num);
 
