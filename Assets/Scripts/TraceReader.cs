@@ -433,7 +433,7 @@ public class TraceReader : MonoBehaviour
         //Marshal.FreeHGlobal(data_ptr);
         ////////
 
-        int agent_num = 1;
+        int agent_num = 5;
         int start_frame = 0;
         int frame_num = 150;
         float[] data = new float[3 * agent_num * frame_num];
