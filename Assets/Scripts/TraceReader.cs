@@ -433,13 +433,14 @@ public class TraceReader : MonoBehaviour
         //Marshal.FreeHGlobal(data_ptr);
         ////////
 
-        int agent_num = 5;
+        int agent_num = 1;
+        int start_frame = 0;
         int frame_num = 150;
         float[] data = new float[3 * agent_num * frame_num];
         int index = 0;
         for (int i = 0; i < agent_num; i++)
         {
-            for (int j = 0; j < frame_num; j++)
+            for (int j = start_frame; j < frame_num; j++)
             {
                 Vector3 ray = GetBirdRay(i, j);
                 data[index++] = ray.x;
@@ -449,9 +450,12 @@ public class TraceReader : MonoBehaviour
         }
         IntPtr data_ptr = Marshal.AllocHGlobal(data.Length * sizeof(float));
         Marshal.Copy(data, 0, data_ptr, data.Length);
-        BirdOpti.LoadData(agent_num, frame_num, data_ptr);
+        BirdOpti.LoadData(agent_num, frame_num - start_frame, data_ptr);
 
-        float[] param_data = { 0.5f, 1.0f, 1.0f, 0.0f, 0.0f};
+        float[] param_data = { 1.0f, 1.0f, 1.0f, 0.0f, 0.0f};
+        param_data[0] = float.Parse(UIControl.instance.param0Input.text);
+        param_data[1] = float.Parse(UIControl.instance.param1Input.text);
+        param_data[2] = float.Parse(UIControl.instance.param2Input.text);
         IntPtr param_data_ptr = Marshal.AllocHGlobal(param_data.Length * sizeof(float));
         Marshal.Copy(param_data, 0, param_data_ptr, param_data.Length);
 
@@ -465,7 +469,7 @@ public class TraceReader : MonoBehaviour
         index = 0;
         for (int i = 0; i < agent_num; i++)
         {
-            for (int j = 0; j < frame_num; j++)
+            for (int j = start_frame; j < frame_num; j++)
             {
                 Vector3 pos = Vector3.zero;
                 pos.x = data_out[index++];
@@ -487,10 +491,10 @@ public class TraceReader : MonoBehaviour
             {
                 Vector3 pre_pos = GetBirdPosition(i, j - 1);
                 Vector3 pos = GetBirdPosition(i, j);
-                //Vector3 pre_dir = GetBirdDirection(i, j - 1);
+                Vector3 pre_dir = GetBirdDirection(i, j - 1);
                 Vector3 v = pos - pre_pos;
-                //Vector3 direction = Vector3.Slerp(pre_dir, v, 0.1f);
-                Vector3 direction = v;
+                Vector3 direction = Vector3.Slerp(pre_dir, v, 0.1f);
+                //Vector3 direction = v;
                 birdInfos[i].directions[j] = direction;
             }
         }

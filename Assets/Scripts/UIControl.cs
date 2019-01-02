@@ -11,6 +11,9 @@ public class UIControl : MonoBehaviour {
 
     public Button switchCameraBtn;
     public Button optimizeBtn;
+    public InputField param0Input;
+    public InputField param1Input;
+    public InputField param2Input;
 
     // Use this for initialization
     void Start () {
