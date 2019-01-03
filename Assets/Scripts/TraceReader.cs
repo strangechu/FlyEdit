@@ -73,7 +73,7 @@ public class TraceReader : MonoBehaviour
         {
             tracePositions.Insert(i, new List<float[]>());
             List<float[]> position = tracePositions[i];
-            if (loadTraceFromCSV("trace0" + (i + 1).ToString() + "_turn", ref position))
+            if (loadTraceFromCSV("sim_10_white_" + (i + 1).ToString(), ref position))
             {
                 /////////
                 // custom trajactory
@@ -99,6 +99,10 @@ public class TraceReader : MonoBehaviour
                 //FRAME_MAX = 360;
                 ////////
                 SpawnBird(i);
+            }
+            else
+            {
+                break;
             }
         }
         InitBirdInfos();
@@ -435,7 +439,7 @@ public class TraceReader : MonoBehaviour
 
         int agent_num = 5;
         int start_frame = 0;
-        int frame_num = 150;
+        int frame_num = 140;
         float[] data = new float[3 * agent_num * frame_num];
         int index = 0;
         for (int i = 0; i < agent_num; i++)
