@@ -174,7 +174,7 @@ public class TraceReader : MonoBehaviour
                 float y = data[2];
                 float pre_d = GetBirdDistance(i, j - 1);
                 Vector3 ray = ScreenToRay(x, y);
-                Vector3 seperation = CalcSeparation(i, j - 1) * SEPERATION_WEIGHT;
+                Vector3 seperation = CalcSeparation(i, j - 1);
                 Vector3 pos = ScreenToWorld(x, y, pre_d);
                 Vector3 camera_pos = main_camera.transform.position;
                 Vector3 v = (pos - camera_pos).normalized;
@@ -411,7 +411,8 @@ public class TraceReader : MonoBehaviour
 
         if (count > 0)
         {
-            force = (force / count).normalized;
+            force = (force / count);
+            force *= SEPERATION_WEIGHT;
             return force;
         }
         return Vector3.zero;
@@ -460,6 +461,8 @@ public class TraceReader : MonoBehaviour
         param_data[0] = float.Parse(UIControl.instance.param0Input.text);
         param_data[1] = float.Parse(UIControl.instance.param1Input.text);
         param_data[2] = float.Parse(UIControl.instance.param2Input.text);
+        param_data[3] = SEPERATION_DIST;
+        param_data[4] = SEPERATION_WEIGHT;
         IntPtr param_data_ptr = Marshal.AllocHGlobal(param_data.Length * sizeof(float));
         Marshal.Copy(param_data, 0, param_data_ptr, param_data.Length);
 

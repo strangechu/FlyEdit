@@ -655,7 +655,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 743952938}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 150, y: 25, z: 70}
+  m_LocalPosition: {x: 150, y: 40, z: 70}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -2264,8 +2264,8 @@ MonoBehaviour:
   bird: {fileID: 1411649459638418, guid: b3092cd6dd2dbc24faa24b7de057ce5a, type: 2}
   sphere: {fileID: 1572545212139274, guid: 94bd4561d9713564a911dc4da0956f7c, type: 2}
   main_camera: {fileID: 2139738534}
-  SEPERATION_DIST: 2
-  SEPERATION_WEIGHT: 0.1
+  SEPERATION_DIST: 5
+  SEPERATION_WEIGHT: 1
 --- !u!114 &2139738537
 MonoBehaviour:
   m_ObjectHideFlags: 0
