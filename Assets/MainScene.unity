@@ -219,7 +219,7 @@ Camera:
   m_GameObject: {fileID: 1335678872}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
+  m_ClearFlags: 2
   m_BackGroundColor: {r: 1, g: 1, b: 1, a: 0}
   m_projectionMatrixMode: 1
   m_SensorSize: {x: 36, y: 24}
@@ -343,6 +343,7 @@ MonoBehaviour:
   separationWeight: 20
   targetWeight: 40
   target_object: {fileID: 1670952053}
+  randomSeed: 5566
 --- !u!114 &1486355571
 MonoBehaviour:
   m_ObjectHideFlags: 0

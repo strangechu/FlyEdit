@@ -11,6 +11,7 @@ public class FlockManager : MonoBehaviour
     public float separationWeight;
     public float targetWeight;
     public GameObject target_object;
+    public int randomSeed = 5566;
 
     private Boid[] boids;
 
@@ -23,6 +24,7 @@ public class FlockManager : MonoBehaviour
 
     void Start ()
     {
+        Random.InitState(randomSeed);
         boids = new Boid[numberOfBoids];
 
         for (int i = 0; i < numberOfBoids; i++)

@@ -25,7 +25,7 @@ public class TraceReader : MonoBehaviour
     private List<BirdInfo> birdInfos = new List<BirdInfo>();
     private List<GameObject> birds = new List<GameObject>();
     private List<Vector3> centerPositions = new List<Vector3>();
-    private int FRAME_MAX = /*70*/154;
+    private int FRAME_MAX = /*70*/290;
     private int TRACE_MAX = 5;
     public Camera main_camera;
 
@@ -73,7 +73,7 @@ public class TraceReader : MonoBehaviour
         {
             tracePositions.Insert(i, new List<float[]>());
             List<float[]> position = tracePositions[i];
-            if (loadTraceFromCSV("sim_10_white_" + (i + 1).ToString(), ref position))
+            if (loadTraceFromCSV("sim_10_white_5566_" + (i + 1).ToString(), ref position))
             {
                 /////////
                 // custom trajactory
@@ -373,7 +373,7 @@ public class TraceReader : MonoBehaviour
                 float[] f = new float[4];
                 f[0] = count;
                 f[1] = float.Parse(data[0]) / 1280;
-                f[2] = float.Parse(data[1]) / 719;
+                f[2] = float.Parse(data[1]) / 720;
                 f[3] = float.Parse(data[2]);
                 //Debug.Log("Frame " + f[0] + " : X=" + f[1] + " Y=" + f[2]);
                 loadedTracePosition.Add(f);
@@ -438,9 +438,9 @@ public class TraceReader : MonoBehaviour
         //Marshal.FreeHGlobal(data_ptr);
         ////////
 
-        int agent_num = 5;
+        int agent_num = TRACE_MAX;
         int start_frame = 0;
-        int frame_num = 140;
+        int frame_num = FRAME_MAX;
         float[] data = new float[3 * agent_num * frame_num];
         int index = 0;
         for (int i = 0; i < agent_num; i++)
