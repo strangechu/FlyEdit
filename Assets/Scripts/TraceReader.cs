@@ -25,8 +25,8 @@ public class TraceReader : MonoBehaviour
     private List<BirdInfo> birdInfos = new List<BirdInfo>();
     private List<GameObject> birds = new List<GameObject>();
     private List<Vector3> centerPositions = new List<Vector3>();
-    private int FRAME_MAX = /*70*/290;
-    private int TRACE_MAX = 5;
+    public int FRAME_MAX = /*70*/290;
+    public int TRACE_MAX = 5;
     public Camera main_camera;
 
 
@@ -380,7 +380,7 @@ public class TraceReader : MonoBehaviour
                 count++;
             }
         }
-        FRAME_MAX = (int)count;
+        //FRAME_MAX = (int)count;
 
         // reverse try
         //List<float[]> reversed = new List<float[]>();
