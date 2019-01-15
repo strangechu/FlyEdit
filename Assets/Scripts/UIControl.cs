@@ -68,7 +68,7 @@ public class UIControl : MonoBehaviour {
     public void UpdateParameters()
     {
         TraceReader.instance.SEPERATION_DIST = int.Parse(param3Input.text);
-        TraceReader.instance.SEPERATION_WEIGHT= int.Parse(param4Input.text);
+        TraceReader.instance.SEPERATION_WEIGHT= float.Parse(param4Input.text);
         UnityEngine.Debug.Log("Parameter updated!");
     }
 

@@ -199,7 +199,7 @@ public class TraceReader : MonoBehaviour
                 Vector3 pos = GetBirdPosition(i, j);
                 Vector3 pre_dir = GetBirdDirection(i, j - 1);
                 Vector3 v = pos - pre_pos;
-                Vector3 direction = Vector3.Slerp(pre_dir, v, 0.5f);
+                Vector3 direction = Vector3.Slerp(pre_dir, v, 0.1f);
                 birdInfos[i].directions[j] = direction;
             }
         }
