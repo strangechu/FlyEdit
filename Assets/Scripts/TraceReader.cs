@@ -28,6 +28,8 @@ public class TraceReader : MonoBehaviour
     public String traceFileName = "sim_10_white_5566_";
     public int FRAME_MAX = /*70*/290;
     public int TRACE_MAX = 5;
+    public int VIDEO_WIDTH = 1280;
+    public int VIDEO_HEIGHT = 720;
     public Camera main_camera;
 
 
@@ -373,8 +375,8 @@ public class TraceReader : MonoBehaviour
             {
                 float[] f = new float[4];
                 f[0] = count;
-                f[1] = float.Parse(data[0]) / 1280;
-                f[2] = float.Parse(data[1]) / 720;
+                f[1] = float.Parse(data[0]) / VIDEO_WIDTH;
+                f[2] = (VIDEO_HEIGHT - float.Parse(data[1])) / VIDEO_HEIGHT;
                 f[3] = float.Parse(data[2]);
                 //Debug.Log("Frame " + f[0] + " : X=" + f[1] + " Y=" + f[2]);
                 loadedTracePosition.Add(f);

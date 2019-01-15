@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -1512,7 +1512,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1068053333}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -3223,8 +3223,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bird: {fileID: 1411649459638418, guid: b3092cd6dd2dbc24faa24b7de057ce5a, type: 2}
   sphere: {fileID: 1572545212139274, guid: 94bd4561d9713564a911dc4da0956f7c, type: 2}
-  FRAME_MAX: 290
-  TRACE_MAX: 10
+  traceFileName: enoshima_
+  FRAME_MAX: 120
+  TRACE_MAX: 4
+  VIDEO_WIDTH: 1280
+  VIDEO_HEIGHT: 480
   main_camera: {fileID: 2139738534}
   SEPERATION_DIST: 2
   SEPERATION_WEIGHT: 0.9
