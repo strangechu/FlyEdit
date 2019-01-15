@@ -25,6 +25,7 @@ public class TraceReader : MonoBehaviour
     private List<BirdInfo> birdInfos = new List<BirdInfo>();
     private List<GameObject> birds = new List<GameObject>();
     private List<Vector3> centerPositions = new List<Vector3>();
+    public String traceFileName = "sim_10_white_5566_";
     public int FRAME_MAX = /*70*/290;
     public int TRACE_MAX = 5;
     public Camera main_camera;
@@ -73,7 +74,7 @@ public class TraceReader : MonoBehaviour
         {
             tracePositions.Insert(i, new List<float[]>());
             List<float[]> position = tracePositions[i];
-            if (loadTraceFromCSV("sim_10_white_5566_" + (i + 1).ToString(), ref position))
+            if (loadTraceFromCSV(traceFileName + (i + 1).ToString(), ref position))
             {
                 /////////
                 // custom trajactory
@@ -198,7 +199,7 @@ public class TraceReader : MonoBehaviour
                 Vector3 pos = GetBirdPosition(i, j);
                 Vector3 pre_dir = GetBirdDirection(i, j - 1);
                 Vector3 v = pos - pre_pos;
-                Vector3 direction = Vector3.Slerp(pre_dir, v, 0.1f);
+                Vector3 direction = Vector3.Slerp(pre_dir, v, 0.5f);
                 birdInfos[i].directions[j] = direction;
             }
         }
