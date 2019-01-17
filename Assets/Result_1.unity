@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -837,7 +837,7 @@ Light:
   m_Enabled: 1
   serializedVersion: 8
   m_Type: 1
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -3223,11 +3223,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bird: {fileID: 1411649459638418, guid: b3092cd6dd2dbc24faa24b7de057ce5a, type: 2}
   sphere: {fileID: 1572545212139274, guid: 94bd4561d9713564a911dc4da0956f7c, type: 2}
-  traceFileName: sim_10_white_5566_
-  FRAME_MAX: 290
-  TRACE_MAX: 10
-  VIDEO_WIDTH: 1280
-  VIDEO_HEIGHT: 720
+  traceFileName: enoshima_
+  FRAME_MAX: 120
+  TRACE_MAX: 4
+  VIDEO_WIDTH: 854
+  VIDEO_HEIGHT: 480
   main_camera: {fileID: 2139738534}
   SEPERATION_DIST: 2
   SEPERATION_WEIGHT: 0.9
