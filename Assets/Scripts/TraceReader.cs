@@ -38,6 +38,9 @@ public class TraceReader : MonoBehaviour
 
     private int frame = -1;
 
+    private bool autoplay = false;
+    private float autoplayTime = 0.0f;
+
     public static TraceReader instance = null;
 
     Vector3 GetBirdPosition(int no, int frame)
@@ -120,13 +123,26 @@ public class TraceReader : MonoBehaviour
             //SpawnBirdOnMouse();
         }
 
+        if (Input.GetKeyDown(KeyCode.P)) {
+            autoplay = !autoplay;
+            autoplayTime = 0.0f;
+        }
+
         GameObject slider_object = GameObject.Find("Slider");
         Slider slider = slider_object.GetComponent<Slider>();
         int current_frame = (int)(slider.value * FRAME_MAX);
+
+        if (autoplay)
+        {
+            autoplayTime += Time.deltaTime * 30;
+            current_frame = (int)autoplayTime;
+        }
+
         if (current_frame != frame)
         {
-            frame = (int)(slider.value * FRAME_MAX);
-            if (frame >= FRAME_MAX - 1) frame = FRAME_MAX - 1;
+            frame = current_frame;
+
+            if (frame >= FRAME_MAX - 2) frame = FRAME_MAX - 2;
 
             for (int i = 0; i < TRACE_MAX; i++)
             {
@@ -139,9 +155,17 @@ public class TraceReader : MonoBehaviour
         for (int i = 0; i < TRACE_MAX; i++)
         {
             Vector3 seperation = CalcSeparation(i, frame);
-            Debug.DrawRay(GetBirdPosition(i, frame), seperation, Color.red);
-            Debug.DrawRay(GetBirdPosition(i, frame), GetBirdDirection(i, frame).normalized, Color.green);
-            Debug.DrawRay(main_camera.transform.position, GetBirdRay(i, frame), Color.yellow);
+            //Debug.DrawRay(GetBirdPosition(i, frame), seperation, Color.red);
+            //Debug.DrawRay(GetBirdPosition(i, frame), GetBirdDirection(i, frame).normalized, Color.green);
+            //Debug.DrawRay(main_camera.transform.position, GetBirdRay(i, frame), Color.yellow);
+
+            // draw trajectory
+            int j = current_frame - 30;
+            if (j < 0) j = 0;
+            for (; j < current_frame; j++)
+            {
+                Debug.DrawRay(GetBirdPosition(i, j), GetBirdPosition(i, j + 1) - GetBirdPosition(i, j), Color.red);
+            }
         }
     }
 
