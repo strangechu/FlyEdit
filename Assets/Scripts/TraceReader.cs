@@ -128,6 +128,11 @@ public class TraceReader : MonoBehaviour
             autoplayTime = 0.0f;
         }
 
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            CameraControl.instance.SwitchCamera();
+        }
+
         GameObject slider_object = GameObject.Find("Slider");
         Slider slider = slider_object.GetComponent<Slider>();
         int current_frame = (int)(slider.value * FRAME_MAX);
